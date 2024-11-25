@@ -11,3 +11,6 @@ Simple tabata timer because the apps are annoying and youtube has too many adds.
 - # Music
 - sample music from https://pixabay.com/music/
 
+- # To run
+- from vscode, 'streamlit run app.py' from terminal
+
