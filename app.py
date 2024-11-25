@@ -29,11 +29,10 @@ def countdown_timer(duration, stage, block, interval, table_placeholder, image_p
     active_image_path = "images/eddie.png"
     rest_image_path = "images/dog.png"
 
-    # Set the image based on the stage
     image_placeholder.image(
         active_image_path if stage == "Active" else rest_image_path,
-        use_column_width=True,
-    )
+        use_container_width=True,
+        )
 
     # Dynamic table update
     for remaining in range(duration, 0, -1):
