@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "tabata"
+version = "0.1.0"
+description = "simple tabata timer"
+authors = ["drtjh1988"]
+license = "None"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pygame = "^2.6.1"
+keyboard = "^0.13.5"
+streamlit = "^1.40.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
