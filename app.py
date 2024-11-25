@@ -9,10 +9,6 @@ import pandas as pd  # For creating and styling the dynamic table
 quit_flag = False
 
 def play_music(file):
-    """
-    Play the music file using pygame in a loop.
-    :param file: Path to the audio file.
-    """
     try:
         pygame.mixer.init()
         pygame.mixer.music.load(file)
@@ -21,25 +17,23 @@ def play_music(file):
         st.error(f"Error playing file {file}: {e}")
 
 def stop_music():
-    """
-    Stop the music playback.
-    """
     try:
         pygame.mixer.music.stop()
     except Exception as e:
         st.error(f"Error stopping music: {e}")
 
-def countdown_timer(duration, stage, block, interval, table_placeholder):
-    """
-    Countdown timer for the specified duration with dynamic table updates.
-    :param duration: Duration of the countdown in seconds.
-    :param stage: Current stage (Workout/Rest).
-    :param block: Current block number.
-    :param interval: Current interval number.
-    :param table_placeholder: Streamlit placeholder for dynamic table updates.
-    :return: True if the timer completed, False if 'q' was pressed to quit.
-    """
+def countdown_timer(duration, stage, block, interval, table_placeholder, image_placeholder):
     global quit_flag
+
+    # Image paths for active and rest phases
+    active_image_path = "images/eddie.png"
+    rest_image_path = "images/dog.png"
+
+    # Set the image based on the stage
+    image_placeholder.image(
+        active_image_path if stage == "Active" else rest_image_path,
+        use_column_width=True,
+    )
 
     # Dynamic table update
     for remaining in range(duration, 0, -1):
@@ -73,14 +67,10 @@ def countdown_timer(duration, stage, block, interval, table_placeholder):
         table_placeholder.markdown(table_html, unsafe_allow_html=True)
 
         time.sleep(1)
+
     return True
 
 def get_random_file(directory):
-    """
-    Get a random MP3 file from the specified directory.
-    :param directory: Path to the directory containing MP3 files.
-    :return: Full path to a random MP3 file.
-    """
     try:
         files = [f for f in os.listdir(directory) if f.endswith(".mp3")]
         if not files:
@@ -90,10 +80,7 @@ def get_random_file(directory):
         st.error(f"Error selecting random file from {directory}: {e}")
         return None
 
-def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, block_rest_duration, active_dir, rest_dir, table_placeholder):
-    """
-    Start the Tabata timer with the specified parameters.
-    """
+def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, block_rest_duration, active_dir, rest_dir, table_placeholder, image_placeholder):
     global quit_flag
     block_seconds = block_minutes * 60
     interval_duration = workout_duration + rest_duration
@@ -116,7 +103,7 @@ def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, blo
 
             # Workout phase
             play_music(workout_music)
-            if not countdown_timer(workout_duration, "Active", block_num, interval, table_placeholder):
+            if not countdown_timer(workout_duration, "Active", block_num, interval, table_placeholder, image_placeholder):
                 stop_music()
                 pygame.mixer.quit()
                 return
@@ -125,7 +112,7 @@ def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, blo
 
             # Rest phase
             play_music(rest_music)
-            if not countdown_timer(rest_duration, "Rest", block_num, interval, table_placeholder):
+            if not countdown_timer(rest_duration, "Rest", block_num, interval, table_placeholder, image_placeholder):
                 stop_music()
                 pygame.mixer.quit()
                 return
@@ -135,7 +122,7 @@ def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, blo
         # Rest between blocks
         if block_num < num_blocks:
             play_music(rest_music)
-            if not countdown_timer(block_rest_duration, "Rest Between Blocks", block_num, "N/A", table_placeholder):
+            if not countdown_timer(block_rest_duration, "Rest Between Blocks", block_num, "N/A", table_placeholder, image_placeholder):
                 stop_music()
                 pygame.mixer.quit()
                 return
@@ -145,36 +132,27 @@ def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, blo
     pygame.mixer.quit()
 
 # Streamlit UI
-st.set_page_config(layout="wide")  # Enable wide layout
+st.set_page_config(layout="wide")
 
 # Create two columns: one for inputs, one for display
-left_col, right_col = st.columns([1, 3])  # Adjusted column ratio for narrower inputs
+left_col, right_col = st.columns([1, 3])
 
 # Inputs in the left column
 with left_col:
     st.title("Tabata Timer")
     st.write("Configure your Tabata session below:")
-    with st.container():
-        block_minutes = st.number_input("Block Duration (minutes)", min_value=1, max_value=60, value=5)
-    with st.container():
-        num_blocks = st.number_input("Number of Blocks", min_value=1, max_value=10, value=3)
-    with st.container():
-        workout_duration = st.number_input("Workout Duration (seconds)", min_value=10, max_value=300, value=20)
-    with st.container():
-        rest_duration = st.number_input("Rest Duration (seconds)", min_value=5, max_value=300, value=10)
-    with st.container():
-        block_rest_duration = st.number_input("Rest Between Blocks (seconds)", min_value=10, max_value=300, value=60)
+    block_minutes = st.number_input("Block Duration (minutes)", min_value=1, max_value=60, value=5)
+    num_blocks = st.number_input("Number of Blocks", min_value=1, max_value=10, value=3)
+    workout_duration = st.number_input("Workout Duration (seconds)", min_value=10, max_value=300, value=20)
+    rest_duration = st.number_input("Rest Duration (seconds)", min_value=5, max_value=300, value=10)
+    block_rest_duration = st.number_input("Rest Between Blocks (seconds)", min_value=10, max_value=300, value=60)
+    active_dir = st.text_input("Active (Workout) Music Directory", value="active")
+    rest_dir = st.text_input("Rest Music Directory", value="rest")
 
-    # Directories for music
-    with st.container():
-        active_dir = st.text_input("Active (Workout) Music Directory", value="active")
-    with st.container():
-        rest_dir = st.text_input("Rest Music Directory", value="rest")
-
-    # Start/Stop buttons
     if st.button("Start Tabata"):
         quit_flag = False
         table_placeholder = right_col.empty()  # Placeholder for dynamic table updates
+        image_placeholder = right_col.empty()  # Placeholder for image updates
         start_tabata(
             block_minutes,
             num_blocks,
@@ -184,6 +162,7 @@ with left_col:
             active_dir,
             rest_dir,
             table_placeholder,
+            image_placeholder,
         )
 
     if st.button("Stop Tabata"):
