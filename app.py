@@ -3,10 +3,20 @@ import os
 import random
 import pygame
 import time
-import pandas as pd  # For creating and styling the dynamic table
 
 # Initialize global quit flag
 quit_flag = False
+
+# List of exercises
+exercises = [
+    "Push-Ups", "Sit-Ups", "V-Ups", "Squats", "Front Lunges",
+    "Back Lunges", "Star Jumps", "Burpees", "Plank",
+    "KB Swings", "KB Goblet Squats",
+    "KB Deadlifts", "KB Cleans (Alternating)",
+    "KB Snatches (Alternating)", "KB Farmer's Carry",
+    "KB Overhead Press (Alternating)", "Mountain Climbers",
+    "Jump Squats", "Bicycle Crunches"
+]
 
 def play_music(file):
     try:
@@ -22,7 +32,7 @@ def stop_music():
     except Exception as e:
         st.error(f"Error stopping music: {e}")
 
-def countdown_timer(duration, stage, block, interval, table_placeholder, image_placeholder):
+def countdown_timer(duration, stage, block, interval, table_placeholder, image_placeholder, exercise=None):
     global quit_flag
 
     # Image paths for active and rest phases
@@ -32,13 +42,15 @@ def countdown_timer(duration, stage, block, interval, table_placeholder, image_p
     image_placeholder.image(
         active_image_path if stage == "Active" else rest_image_path,
         use_container_width=True,
-        )
+    )
 
-    # Dynamic table update
     for remaining in range(duration, 0, -1):
         if quit_flag:
             st.warning("Timer stopped by user.")
             return False
+
+        # Determine exercise display
+        exercise_display = exercise if stage == "Active" else "Breathe"
 
         # Create the table content as styled HTML
         table_html = f"""
@@ -49,6 +61,7 @@ def countdown_timer(duration, stage, block, interval, table_placeholder, image_p
                     <th style="border: 2px solid black; padding: 10px;">Interval</th>
                     <th style="border: 2px solid black; padding: 10px;">Active/Rest</th>
                     <th style="border: 2px solid black; padding: 10px;">Time Remaining</th>
+                    <th style="border: 2px solid black; padding: 10px;">Exercise</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,14 +70,13 @@ def countdown_timer(duration, stage, block, interval, table_placeholder, image_p
                     <td style="border: 2px solid black; padding: 10px;">{interval}</td>
                     <td style="border: 2px solid black; padding: 10px;">{stage}</td>
                     <td style="border: 2px solid black; padding: 10px;">{remaining}s</td>
+                    <td style="border: 2px solid black; padding: 10px;">{exercise_display}</td>
                 </tr>
             </tbody>
         </table>
         """
 
-        # Update the table in the Streamlit UI
         table_placeholder.markdown(table_html, unsafe_allow_html=True)
-
         time.sleep(1)
 
     return True
@@ -101,8 +113,9 @@ def start_tabata(block_minutes, num_blocks, workout_duration, rest_duration, blo
                 return
 
             # Workout phase
+            exercise = random.choice(exercises)
             play_music(workout_music)
-            if not countdown_timer(workout_duration, "Active", block_num, interval, table_placeholder, image_placeholder):
+            if not countdown_timer(workout_duration, "Active", block_num, interval, table_placeholder, image_placeholder, exercise):
                 stop_music()
                 pygame.mixer.quit()
                 return
@@ -138,7 +151,7 @@ left_col, right_col = st.columns([1, 3])
 
 # Inputs in the left column
 with left_col:
-    st.title("Tabata Timer")
+    st.title("Tabata!")
     st.write("Configure your Tabata session below:")
     block_minutes = st.number_input("Block Duration (minutes)", min_value=1, max_value=60, value=5)
     num_blocks = st.number_input("Number of Blocks", min_value=1, max_value=10, value=3)
