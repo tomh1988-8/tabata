@@ -11,11 +11,12 @@ quit_flag = False
 exercises = [
     "Push-Ups", "Sit-Ups", "V-Ups", "Squats", "Front Lunges",
     "Back Lunges", "Star Jumps", "Burpees", "Plank",
-    "KB Swings", "KB Goblet Squats",
-    "KB Deadlifts", "KB Cleans (Alternating)",
-    "KB Snatches (Alternating)", "KB Farmer's Carry",
-    "KB Overhead Press (Alternating)", "Mountain Climbers",
-    "Jump Squats", "Bicycle Crunches"
+    "KB Swings", "KB Squat UR",
+    "KB Deadlifts", "KB Clean and Jerk",
+    "KB Snatches", "KB Push-up Tap",
+    "KB Overhead Press", "Mountain Climbers",
+    "Jump Squats", "Bicycle Crunches", "KB Halo", "KB Goblet Squats", "KB Glute PO",
+    "KB Toe Taps", "KB Gorilla Row", "KB Diamond Push-ups"
 ]
 
 def play_music(file):
